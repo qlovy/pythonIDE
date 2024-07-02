@@ -11,6 +11,6 @@ Je pars de l'exemple de geeksforgeeks.com et je vais l'améliorer.
 
 ### TODO
 
-- [ ] Gérer la tabulation
+- [x] Gérer la tabulation
 - [ ] Coloration synthaxique
 - [ ] Enregistrer le fichier, ouvrir un fichier

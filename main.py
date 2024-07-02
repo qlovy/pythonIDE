@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, Q
 
 
 class PythonIDE(QMainWindow):
+    # L'initialisation de L'IDE
     def __init__(self):
         super().__init__()
         self.setGeometry(100, 100, 800, 600)  # dimension de la page
@@ -16,6 +17,7 @@ class PythonIDE(QMainWindow):
 
         # l'endroit pour éditer le texte
         self.text_editor = QTextEdit(self)
+        self.text_editor.setTabStopWidth(12) # défini la tabulation à 4 espaces
         self.text_editor.setGeometry(10, 10, 780, 300)
 
         # l'endroit que renvoie le résultat du code
