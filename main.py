@@ -1,13 +1,15 @@
 # Départ de l'exemple de geeksforgeeks.com
 # source: https://www.geeksforgeeks.org/creating-your-own-python-ide-in-python/
 
+import keyword as key_py
 # import des différents modules
 import sys
 
-from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QProcess, QRegExp
+from PyQt5.QtGui import QFont, QFontDatabase, QSyntaxHighlighter, QTextCharFormat, QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, QTextBrowser, QAction, \
     QFileDialog, QTabWidget  # pour l'interface
-from PyQt5.QtGui import QFont, QFontDatabase
+
 
 class PythonIDE(QMainWindow):
     # L'initialisation de L'IDE
@@ -17,10 +19,10 @@ class PythonIDE(QMainWindow):
         self.setWindowTitle('Python IDE')  # nom de la page
 
         # polices personnalisées
-        dejavu_id = QFontDatabase.addApplicationFont("fonts/DejaVuSansMono.ttf")
-        dejavu_font = QFont("DejaVu Sans Mono", 10)
+        QFontDatabase.addApplicationFont("fonts/DejaVuSansMono.ttf")
+        # dejavu_font = QFont("DejaVu Sans Mono", 10)
 
-        open_sans_id = QFontDatabase.addApplicationFont("fonts/OpenSans-Regular.ttf")
+        QFontDatabase.addApplicationFont("fonts/OpenSans-Regular.ttf")
         open_sans_font = QFont("Open Sans", 10)
 
         # Applique la police a toute l'interface
@@ -64,7 +66,7 @@ class PythonIDE(QMainWindow):
         self.tab_widget = QTabWidget(self)
         self.tab_widget.setGeometry(10, 25, 780, 280)
         # Le partie texte
-        self.text_editor = QTextEdit(self)
+        self.text_editor = QTextEdit()
         self.text_editor.setTabStopWidth(12)  # défini la tabulation à 4 espaces
         self.text_editor.setGeometry(10, 25, 780, 280)
         self.tab_widget.addTab(self.text_editor, self.filename)
@@ -81,13 +83,16 @@ class PythonIDE(QMainWindow):
         # Initalisation du processus
         self.process = QProcess()
 
+        syntax_highlighter(self.text_editor)
+
     # Création d'un nouveau fichier
     def new_file(self):
         self.text_editor.clear()
-        self.filename = "newfile.py"
+        self.tab_widget.addTab(self.text_editor, "newfile.py")
 
     # Ouverture d'un fichier
     def open_file(self):
+        self.text_editor.clear()
         self.filename = QFileDialog.getOpenFileName(self, 'Open File', './',
                                                     "Python Files (*.py)")  # Ouvre l'interface pour ouvrir un fichier
         # Si le fichier est séléctionné
@@ -96,7 +101,8 @@ class PythonIDE(QMainWindow):
             with open(self.filename[0], 'r') as f:
                 text = f.read()  # On récupère le contenu du fichier
                 self.text_editor.insertPlainText(text)  # On affiche le code récupèrer
-        self.tab_widget.addTab(self.text_editor, self.filename[0].split("/")[-1])  # Actualise le nom de l'onglet et récupère le nom du fichier
+        self.tab_widget.addTab(self.text_editor, self.filename[0].split("/")[
+            -1])  # Actualise le nom de l'onglet et récupère le nom du fichier
 
     # Enregistrer sous un fichier
     def save_as_file(self):
@@ -146,6 +152,47 @@ class PythonIDE(QMainWindow):
             error = self.process.readAllStandardError().data().decode()
             self.output_widget.append(f"Error: {error}")
             self.run_button.setEnabled(True)
+
+
+# Met en couleur les différents mots du code
+class syntax_highlighter(QSyntaxHighlighter):
+    def __init__(self, parent=None):
+        super(syntax_highlighter, self).__init__(parent)  # Appelle le constructeur
+
+        keyword_format = QTextCharFormat()
+        keyword_format.setFontWeight(QFont.Bold)  # On met la police en gras
+        keyword_format.setForeground(QColor("blue"))  # On définit la couleur pour qu'elle soit bleue
+
+        self.highlightingRules = []  # Contient tous les mots clé du langages
+
+        # Ajout des mots-clés dans la liste
+        for key in key_py.kwlist:
+            self.highlightingRules.append((QRegExp(fr"\b{key}\b"), keyword_format))
+
+    # Appelé pour chaque bloque de texte dans l'éditeur (text_editor)
+    def highlightBlock(self, text):
+        # Nous parcourons la liste highlightingRules
+        # et pour chaque règle, nous recherchons une occurrence de l'expression régulière
+        # dans le bloc actuel en utilisant la méthode indexIn.
+        for pattern, format in self.highlightingRules:
+            index = pattern.indexIn(text)
+            while index >= 0:
+                # si on trouve une occurrence, on calcule sa longueur en utilisant la méthode matchedLength()
+                length = pattern.matchedLength()
+                # Si l'index est possible et le mot-clé n'est pas entouré de guillemets
+                if index > 0 and index - 1 < len(text) and text[index - 1] == '"':
+                    index = pattern.indexIn(text, index + length)
+                # Si l'index est possible et le mot-clé n'est pas entouré de guillemets
+                elif index + length <= len(text) and text[index + length - 1] == '"':
+                    index = pattern.indexIn(text, index + length)
+                # Sinon on applique juste le format
+                else:
+                    self.apply_format(index, length, format)
+                    index = pattern.indexIn(text, index + length)
+                # puis on continue dans le reste du bloc
+
+    def apply_format(self, start, length, format):
+        self.setFormat(start, length, format)
 
 
 if __name__ == '__main__':
