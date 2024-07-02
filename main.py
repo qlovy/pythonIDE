@@ -7,7 +7,7 @@ import sys
 from PyQt5.QtCore import QProcess
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, QTextBrowser, QAction, \
     QFileDialog, QTabWidget  # pour l'interface
-
+from PyQt5.QtGui import QFont, QFontDatabase
 
 class PythonIDE(QMainWindow):
     # L'initialisation de L'IDE
@@ -15,6 +15,16 @@ class PythonIDE(QMainWindow):
         super().__init__()
         self.setGeometry(100, 100, 800, 600)  # dimension de la page
         self.setWindowTitle('Python IDE')  # nom de la page
+
+        # polices personnalisées
+        dejavu_id = QFontDatabase.addApplicationFont("fonts/DejaVuSansMono.ttf")
+        dejavu_font = QFont("DejaVu Sans Mono", 10)
+
+        open_sans_id = QFontDatabase.addApplicationFont("fonts/OpenSans-Regular.ttf")
+        open_sans_font = QFont("Open Sans", 10)
+
+        # Applique la police a toute l'interface
+        self.setFont(open_sans_font)
 
         # Création du menu
         menu_bar = self.menuBar()
