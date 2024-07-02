@@ -6,7 +6,7 @@ import sys
 
 from PyQt5.QtCore import QProcess
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, QTextBrowser, QAction, \
-    QFileDialog  # pour l'interface
+    QFileDialog, QTabWidget  # pour l'interface
 
 
 class PythonIDE(QMainWindow):
@@ -46,10 +46,18 @@ class PythonIDE(QMainWindow):
         save_as_action.triggered.connect(self.save_as_file)
         file_menu.addAction(save_as_action)
 
+        # le nom du fichier au début
+        self.filename = "newfile.py"
+
         # l'endroit pour éditer le texte
+        # L'onglet
+        self.tab_widget = QTabWidget(self)
+        self.tab_widget.setGeometry(10, 25, 780, 280)
+        # Le partie texte
         self.text_editor = QTextEdit(self)
         self.text_editor.setTabStopWidth(12)  # défini la tabulation à 4 espaces
         self.text_editor.setGeometry(10, 25, 780, 280)
+        self.tab_widget.addTab(self.text_editor, self.filename)
 
         # l'endroit que renvoie le résultat du code
         self.output_widget = QTextBrowser(self)
@@ -62,8 +70,6 @@ class PythonIDE(QMainWindow):
 
         # Initalisation du processus
         self.process = QProcess()
-
-        self.filename = "newfile.py"
 
     # Création d'un nouveau fichier
     def new_file(self):
@@ -80,6 +86,7 @@ class PythonIDE(QMainWindow):
             with open(self.filename[0], 'r') as f:
                 text = f.read()  # On récupère le contenu du fichier
                 self.text_editor.insertPlainText(text)  # On affiche le code récupèrer
+        self.tab_widget.addTab(self.text_editor, self.filename[0].split("/")[-1])  # Actualise le nom de l'onglet et récupère le nom du fichier
 
     # Enregistrer sous un fichier
     def save_as_file(self):
@@ -90,6 +97,8 @@ class PythonIDE(QMainWindow):
             text = self.text_editor.toPlainText()  # récupère le code
             with open(self.filename[0], 'w') as f:
                 f.write(text)  # écrit le code dans le fichier
+
+        self.tab_widget.addTab(self.text_editor, self.filename[0].split("/")[-1])
 
     # Enregister un fichier
     def save_file(self):
