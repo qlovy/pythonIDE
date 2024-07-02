@@ -14,5 +14,6 @@ Je pars de l'exemple de geeksforgeeks.com et je vais l'améliorer.
 - [x] Gérer la tabulation
 - [ ] Coloration synthaxique
 - [x] Enregistrer le fichier, ouvrir un fichier
-- [ ] Afficher le nom du fichier et son extension
+- [x] Afficher le nom du fichier et son extension
 - [x] Faire le différence entre enregistrer et enregistrer sous
+- [ ] Travailler avec plusieurs fichiers
